@@ -2,8 +2,6 @@ import streamlit as st
 import numpy as np
 import pickle
 
-# IMPORTANT: You must include your custom class definition 
-# so pickle can load the model correctly.
 class LinearRegression:
     def __init__(self, learning_rate, iterations):
         self.coeff = None
@@ -20,7 +18,7 @@ st.set_page_config(page_title="Placement Predictor")
 st.title("🎓 Student Placement Predictor")
 st.write("Enter student details to predict placement probability.")
 
-# Load your saved model
+
 @st.cache_resource
 def load_model():
     with open('model.pkl', 'rb') as file:
@@ -38,17 +36,15 @@ with col1:
 with col2:
     backlogs = st.selectbox("History of Backlogs", options=[0, 1], format_func=lambda x: "Yes" if x == 1 else "No")
 
-# Prediction logic
 if st.button("Predict Placement Status"):
-    # Format input for the model
     user_input = np.array([[internships, cgpa, backlogs]])
     
     # Get prediction
     prediction = model.predict(user_input)
-    binary_result = (prediction >= 0.5).astype(int)
+    score = prediction[0]
+    binary_result = 1 if score >= 0.5 else 0
     
-    # Display result
-    if binary_result[0] == 1:
-        st.success(f"Result: Likely to be Placed! (Score: {prediction[0][0]:.2f})")
+    if binary_result == 1:
+        st.success(f"Result: Likely to be Placed! (Score: {score:.2f})")
     else:
-        st.error(f"Result: Not Likely to be Placed. (Score: {prediction[0][0]:.2f})")
+        st.error(f"Result: Not Likely to be Placed. (Score: {score:.2f})")
